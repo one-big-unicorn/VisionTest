@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,9 +31,9 @@ public class PhotonVision extends SubsystemBase {
     private final NetworkTableInstance inst;
     private final NetworkTable table;
 
-    BooleanPublisher hasTargets;
-    DoublePublisher time;
-    IntegerPublisher numTargets;
+    // BooleanPublisher hasTargets;
+    // DoublePublisher time;
+    // IntegerPublisher numTargets;
 
     AprilTagFieldLayout aprilTagFieldLayout;
     Transform3d cameraToRobot;
@@ -43,9 +44,9 @@ public class PhotonVision extends SubsystemBase {
         inst = NetworkTableInstance.getDefault();
         table = inst.getTable("datatable");
 
-        hasTargets = table.getBooleanTopic("hasTargets").publish();
-        time = table.getDoubleTopic("time").publish();
-        numTargets = table.getIntegerTopic("numTargets").publish();
+        // hasTargets = table.getBooleanTopic("hasTargets").publish();
+        // time = table.getDoubleTopic("time").publish();
+        // numTargets = table.getIntegerTopic("numTargets").publish();
 
 
         // https://github.wpilib.org/allwpilib/docs/beta/java/edu/wpi/first/apriltag/AprilTagFieldLayout.html
@@ -53,12 +54,14 @@ public class PhotonVision extends SubsystemBase {
         try {
             aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
         } catch (IOException e) {
-            System.out.println("dang it");
+            SmartDashboard.putString("grr", "true ._.");
+
         }
 
         camera = new PhotonCamera(Constants.Constantsq.CAMERA_NAME);
         cameraToRobot = new Transform3d(new Translation3d(Constants.Constantsq.CAMERA_TO_ROBOT_OFFSET_FORWARD, 0.0, Constants.Constantsq.CAMERA_TO_ROBOT_OFFSET_UP), new Rotation3d(0.0,0.0,0.0));
-        PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, camera, cameraToRobot);
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, camera, cameraToRobot);
+        SmartDashboard.putString("estimator", photonPoseEstimator.toString());
 
     }
 
@@ -66,7 +69,8 @@ public class PhotonVision extends SubsystemBase {
         var vision = camera.getLatestResult();
 
         if (vision.hasTargets()) {
-            hasTargets.set(true);
+            SmartDashboard.putString("connected", "connected0");
+            // hasTargets.set(true);
             
             // PhotonTrackedTarget target = vision.getBestTarget();
             // Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(), cameraToRobot);
@@ -76,16 +80,21 @@ public class PhotonVision extends SubsystemBase {
             } else {
                 photonPoseEstimator.setPrimaryStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
             }
-
+            
+            SmartDashboard.putString("connected1", "connected");
             EstimatedRobotPose estimatedPose = photonPoseEstimator.update().get();
+            SmartDashboard.putString("connected2", "connected");
             Pose3d robotPose = estimatedPose.estimatedPose;
+            
 
-            time.set(estimatedPose.timestampSeconds);
+            // time.set(estimatedPose.timestampSeconds);
             List<PhotonTrackedTarget> targetsUsed = estimatedPose.targetsUsed;
-            numTargets.set(targetsUsed.size());
+            // numTargets.set(targetsUsed.size());
+
+            SmartDashboard.putString("robotPose", robotPose.toString());
         } 
         else {
-            hasTargets.set(false);
+            // hasTargets.set(false);
         }
     }
 }

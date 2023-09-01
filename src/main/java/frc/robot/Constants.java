@@ -21,7 +21,7 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     public static final double CAMERA_TO_ROBOT_OFFSET_UP = 0;
     public static final double CAMERA_TO_ROBOT_OFFSET_FORWARD = 0;
-    public static final String CAMERA_NAME = "photonvision";
+    public static final String CAMERA_NAME = "OV5647";
     public static final String ROBORIO_IP = "[blah]";
   }
 }

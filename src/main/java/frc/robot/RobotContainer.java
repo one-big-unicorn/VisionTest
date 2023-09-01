@@ -23,6 +23,8 @@ public class RobotContainer {
     inst = NetworkTableInstance.getDefault();
     inst.stopServer();
     inst.setServer(Constants.Constantsq.ROBORIO_IP);
+    inst.setServerTeam(695);
+
     inst.startServer();
 
     m_VisionSubsystem = new PhotonVision();
