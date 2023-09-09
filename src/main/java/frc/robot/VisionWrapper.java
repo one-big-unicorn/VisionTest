@@ -1,19 +1,19 @@
-package frc.robot.subsystems;
+package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose3d;
 
 public class VisionWrapper {
-    private Integer numTargets;
+    private int numTargets;
     private Pose3d robotPose;
     private double time;
 
-    public VisionWrapper(Integer inNumTargets, Pose3d inRobotPose, double time) {
+    public VisionWrapper(int inNumTargets, Pose3d inRobotPose, double time) {
         numTargets = inNumTargets;
         robotPose = inRobotPose;
         this.time = time;
     }
 
-    public Integer getTargets() { return numTargets; }
+    public int getTargets() { return numTargets; }
 
     public Pose3d getRobotPose() { return robotPose; }
 
