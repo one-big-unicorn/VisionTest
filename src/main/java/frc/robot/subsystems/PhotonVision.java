@@ -6,7 +6,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.photonvision.EstimatedRobotPose;
@@ -21,9 +20,6 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.IntegerPublisher;
 
 public class PhotonVision extends SubsystemBase {
 
@@ -51,9 +47,8 @@ public class PhotonVision extends SubsystemBase {
 
         try {
             aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
-            SmartDashboard.putString("grr", "yay :D");
         } catch (Exception e) {
-            SmartDashboard.putString("grr", "grr ._.");
+            SmartDashboard.putString("grr", e.toString());
 
         }
 
@@ -62,15 +57,16 @@ public class PhotonVision extends SubsystemBase {
                 Constants.Constantsq.CAMERA_TO_ROBOT_OFFSET_UP), new Rotation3d(0.0, 0.0, 0.0));
         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, camera,
                 cameraToRobot);
-        SmartDashboard.putString("estimator", photonPoseEstimator.toString());
 
     }
 
-    public void see() {
+    public VisionWrapper see() {
         var vision = camera.getLatestResult();
 
+        EstimatedRobotPose estimatedPose;
+        Pose3d robotPose;
+
         if (vision.hasTargets()) {
-            SmartDashboard.putString("connected0", "connected");
             // hasTargets.set(true);
 
             // PhotonTrackedTarget target = vision.getBestTarget();
@@ -84,25 +80,28 @@ public class PhotonVision extends SubsystemBase {
                 photonPoseEstimator.setPrimaryStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
             }
 
-            SmartDashboard.putString("connected1", "connected");
-
-            EstimatedRobotPose estimatedPose;
             try {
                 estimatedPose = photonPoseEstimator.update().get();
-                SmartDashboard.putString("grr2", "yay :D");
-                SmartDashboard.putString("connected2", "connected");
-                Pose3d robotPose = estimatedPose.estimatedPose;
+                robotPose = estimatedPose.estimatedPose;
+
                 // time.set(estimatedPose.timestampSeconds);
                 List<PhotonTrackedTarget> targetsUsed = estimatedPose.targetsUsed;
                 // numTargets.set(targetsUsed.size());
 
-            SmartDashboard.putString("robotPose", robotPose.toString());
+                SmartDashboard.putString("robotPose", robotPose.toString());
+
+                return (new VisionWrapper(targetsUsed.size(), robotPose, estimatedPose.timestampSeconds));
+
             } catch (Exception e) {
-                SmartDashboard.putString("grr2", "grr ._.");
+                SmartDashboard.putString("grr", e.toString());
+                return null;
             }
 
         } else {
             // hasTargets.set(false);
         }
+
+        return null;
+
     }
 }
