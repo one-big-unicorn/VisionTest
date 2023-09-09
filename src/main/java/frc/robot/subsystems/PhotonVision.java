@@ -15,7 +15,6 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -48,19 +47,21 @@ public class PhotonVision extends SubsystemBase {
         // time = table.getDoubleTopic("time").publish();
         // numTargets = table.getIntegerTopic("numTargets").publish();
 
-
         // https://github.wpilib.org/allwpilib/docs/beta/java/edu/wpi/first/apriltag/AprilTagFieldLayout.html
-        
+
         try {
             aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
-        } catch (IOException e) {
-            SmartDashboard.putString("grr", "true ._.");
+            SmartDashboard.putString("grr", "yay :D");
+        } catch (Exception e) {
+            SmartDashboard.putString("grr", "grr ._.");
 
         }
 
         camera = new PhotonCamera(Constants.Constantsq.CAMERA_NAME);
-        cameraToRobot = new Transform3d(new Translation3d(Constants.Constantsq.CAMERA_TO_ROBOT_OFFSET_FORWARD, 0.0, Constants.Constantsq.CAMERA_TO_ROBOT_OFFSET_UP), new Rotation3d(0.0,0.0,0.0));
-        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, camera, cameraToRobot);
+        cameraToRobot = new Transform3d(new Translation3d(Constants.Constantsq.CAMERA_TO_ROBOT_OFFSET_FORWARD, 0.0,
+                Constants.Constantsq.CAMERA_TO_ROBOT_OFFSET_UP), new Rotation3d(0.0, 0.0, 0.0));
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, camera,
+                cameraToRobot);
         SmartDashboard.putString("estimator", photonPoseEstimator.toString());
 
     }
@@ -69,31 +70,38 @@ public class PhotonVision extends SubsystemBase {
         var vision = camera.getLatestResult();
 
         if (vision.hasTargets()) {
-            SmartDashboard.putString("connected", "connected0");
+            SmartDashboard.putString("connected0", "connected");
             // hasTargets.set(true);
-            
+
             // PhotonTrackedTarget target = vision.getBestTarget();
-            // Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(), cameraToRobot);
-            
-            if(vision.targets.size() == 1) {
+            // Pose3d robotPose =
+            // PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(),
+            // aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(), cameraToRobot);
+
+            if (vision.targets.size() == 1) {
                 photonPoseEstimator.setPrimaryStrategy(PoseStrategy.LOWEST_AMBIGUITY);
             } else {
                 photonPoseEstimator.setPrimaryStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
             }
-            
-            SmartDashboard.putString("connected1", "connected");
-            EstimatedRobotPose estimatedPose = photonPoseEstimator.update().get();
-            SmartDashboard.putString("connected2", "connected");
-            Pose3d robotPose = estimatedPose.estimatedPose;
-            
 
-            // time.set(estimatedPose.timestampSeconds);
-            List<PhotonTrackedTarget> targetsUsed = estimatedPose.targetsUsed;
-            // numTargets.set(targetsUsed.size());
+            SmartDashboard.putString("connected1", "connected");
+
+            EstimatedRobotPose estimatedPose;
+            try {
+                estimatedPose = photonPoseEstimator.update().get();
+                SmartDashboard.putString("grr2", "yay :D");
+                SmartDashboard.putString("connected2", "connected");
+                Pose3d robotPose = estimatedPose.estimatedPose;
+                // time.set(estimatedPose.timestampSeconds);
+                List<PhotonTrackedTarget> targetsUsed = estimatedPose.targetsUsed;
+                // numTargets.set(targetsUsed.size());
 
             SmartDashboard.putString("robotPose", robotPose.toString());
-        } 
-        else {
+            } catch (Exception e) {
+                SmartDashboard.putString("grr2", "grr ._.");
+            }
+
+        } else {
             // hasTargets.set(false);
         }
     }
