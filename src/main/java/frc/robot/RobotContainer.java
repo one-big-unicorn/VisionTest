@@ -4,35 +4,37 @@
 
 package frc.robot;
 
-import frc.robot.commands.VisionCommand;
+import frc.robot.commands.CubeCommand;
+import frc.robot.commands.PoseCommand;
+import frc.robot.subsystems.VisionSubsystem;
 
-import frc.robot.subsystems.PhotonVision;
-
-import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-
 
 public class RobotContainer {
 
-  private final NetworkTableInstance inst;
-  private final VisionCommand m_VisionCommand;
-  private final PhotonVision m_VisionSubsystem;
+  // private final NetworkTableInstance inst;
+  private final PoseCommand m_PoseCommand;
+  private final VisionSubsystem m_VisionSubsystem;
+  private final CubeCommand m_CubeCommand;
 
   public RobotContainer() {
 
-    inst = NetworkTableInstance.getDefault();
-    inst.stopServer();
-    inst.setServerTeam(695);
+    // inst = NetworkTableInstance.getDefault();
+    // inst.stopServer();
+    // inst.setServerTeam(695);
 
-    inst.startServer();
+    // inst.startServer();
 
-    m_VisionSubsystem = new PhotonVision();
-    m_VisionCommand = new VisionCommand(m_VisionSubsystem);
-    m_VisionSubsystem.setDefaultCommand(m_VisionCommand);
+    m_VisionSubsystem = new VisionSubsystem();
+    m_PoseCommand = new PoseCommand(m_VisionSubsystem);
+    m_CubeCommand = new CubeCommand(m_VisionSubsystem);
+
+    m_VisionSubsystem.setDefaultCommand(m_PoseCommand);
+
   }
 
   public Command getAutonomousCommand() {
-    return m_VisionCommand;
+    return m_PoseCommand;
   }
 }
-

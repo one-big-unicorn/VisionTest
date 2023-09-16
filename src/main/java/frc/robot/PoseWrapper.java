@@ -2,12 +2,12 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose3d;
 
-public class VisionWrapper {
+public class PoseWrapper {
     private int numTargets;
     private Pose3d robotPose;
     private double time;
 
-    public VisionWrapper(int inNumTargets, Pose3d inRobotPose, double time) {
+    public PoseWrapper(int inNumTargets, Pose3d inRobotPose, double time) {
         numTargets = inNumTargets;
         robotPose = inRobotPose;
         this.time = time;

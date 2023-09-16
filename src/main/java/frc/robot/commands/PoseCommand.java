@@ -6,14 +6,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-import frc.robot.subsystems.PhotonVision;
+import frc.robot.subsystems.VisionSubsystem;
 
-public class VisionCommand extends CommandBase {
+public class PoseCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
 
-  private final PhotonVision m_VisionSubsystem;
+  private final VisionSubsystem m_VisionSubsystem;
 
-  public VisionCommand(PhotonVision subsystem) {
+  public PoseCommand(VisionSubsystem subsystem) {
     m_VisionSubsystem = subsystem;
 
     addRequirements(m_VisionSubsystem);
@@ -24,7 +24,7 @@ public class VisionCommand extends CommandBase {
 
   @Override
   public void execute() {
-    m_VisionSubsystem.see();
+    m_VisionSubsystem.getPose();
   }
 
   @Override
