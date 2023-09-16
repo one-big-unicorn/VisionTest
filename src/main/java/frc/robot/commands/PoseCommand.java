@@ -24,7 +24,7 @@ public class PoseCommand extends CommandBase {
 
   @Override
   public void execute() {
-    m_VisionSubsystem.getPose();
+    m_VisionSubsystem.findCube();
   }
 
   @Override

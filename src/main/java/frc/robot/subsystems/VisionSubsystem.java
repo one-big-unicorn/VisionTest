@@ -13,6 +13,8 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.common.hardware.VisionLEDMode;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -21,21 +23,30 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class VisionSubsystem extends SubsystemBase {
 
     PhotonCamera camera;
+    PhotonPipelineResult result;
 
     public VisionSubsystem() {
         camera = new PhotonCamera(Constants.Constantsq.CAMERA_NAME);
+        camera.setLED(VisionLEDMode.kOff);
     }
 
     public double findCube() {
+        // NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
+        camera.setPipelineIndex(0);
+        
         return 0.0;
     }
     
 
     public PoseWrapper getPose() {
+        //SmartDashboard.putString("grr", "yayaya");
+        camera.setPipelineIndex(1);
+
 
         AprilTagFieldLayout aprilTagFieldLayout;
         Transform3d cameraToRobot;
@@ -54,20 +65,23 @@ public class VisionSubsystem extends SubsystemBase {
         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, camera,
             cameraToRobot);
 
-        var vision = camera.getLatestResult();
-
         EstimatedRobotPose estimatedPose;
         Pose3d robotPose;
 
-        if (vision.hasTargets()) {
+        result = camera.getLatestResult();
+
+        if (result.hasTargets()) {
             SmartDashboard.putBoolean("targets?", true);
             // hasTargets.set(true);
 
             // PhotonTrackedTarget target = vision.getBestTarget();
 
             photonPoseEstimator.setPrimaryStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
+            //SmartDashboard.putString("grr2", "yayaya");
 
             try {
+                //SmartDashboard.putString("grr3", "yayaya");
+
                 estimatedPose = photonPoseEstimator.update().get();
                 robotPose = estimatedPose.estimatedPose;
 
@@ -88,6 +102,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         } else {
             SmartDashboard.putBoolean("targets?", false);
+            SmartDashboard.putString("robotPose", "none");
         }
 
         return null;

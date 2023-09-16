@@ -4,19 +4,18 @@
 
 package frc.robot;
 
-import frc.robot.commands.CubeCommand;
 import frc.robot.commands.PoseCommand;
 import frc.robot.subsystems.VisionSubsystem;
 
 // import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class RobotContainer {
 
   // private final NetworkTableInstance inst;
-  private final PoseCommand m_PoseCommand;
   private final VisionSubsystem m_VisionSubsystem;
-  private final CubeCommand m_CubeCommand;
+  private final PoseCommand m_PoseCommand;
 
   public RobotContainer() {
 
@@ -28,13 +27,12 @@ public class RobotContainer {
 
     m_VisionSubsystem = new VisionSubsystem();
     m_PoseCommand = new PoseCommand(m_VisionSubsystem);
-    m_CubeCommand = new CubeCommand(m_VisionSubsystem);
-
     m_VisionSubsystem.setDefaultCommand(m_PoseCommand);
+
 
   }
 
   public Command getAutonomousCommand() {
-    return m_PoseCommand;
+    return null;
   }
 }
