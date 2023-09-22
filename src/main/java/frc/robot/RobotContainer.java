@@ -9,7 +9,6 @@ import frc.robot.subsystems.VisionSubsystem;
 
 // import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class RobotContainer {
 
@@ -28,7 +27,6 @@ public class RobotContainer {
     m_VisionSubsystem = new VisionSubsystem();
     m_PoseCommand = new PoseCommand(m_VisionSubsystem);
     m_VisionSubsystem.setDefaultCommand(m_PoseCommand);
-
 
   }
 

@@ -19,4 +19,8 @@ public class PoseWrapper {
 
     public double getTime() { return time; }
 
+    public String toString() {
+        return "Pose: " + robotPose + "\nnumTargets: " + numTargets + "\ntime: " + time;
+    }
+
 }
