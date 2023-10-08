@@ -34,12 +34,27 @@ public class VisionSubsystem extends SubsystemBase {
     PhotonCamera camera;
     PhotonPipelineResult result;
     Field2d m_field = new Field2d();
-
+    PhotonPoseEstimator photonPoseEstimator;
+    AprilTagFieldLayout aprilTagFieldLayout;
+    Transform3d cameraToRobot;
 
     public VisionSubsystem() {
         camera = new PhotonCamera(Constants.Constantsq.CAMERA_NAME);
         camera.setLED(VisionLEDMode.kOff);
         SmartDashboard.putData("Field", m_field);
+        cameraToRobot = new Transform3d(new Translation3d(Constants.Constantsq.CAMERA_TO_ROBOT_OFFSET_FORWARD, 0.0,
+                Constants.Constantsq.CAMERA_HEIGHT_METERS), new Rotation3d(0.0, 0.0, 0.0));
+        try {
+            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
+        } catch (Exception e) {
+            aprilTagFieldLayout = null;
+            SmartDashboard.putString("field layout load error", e.toString());
+        }
+
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP, camera,
+                cameraToRobot);
+        photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
     }
 
     public Double findCube() {
@@ -50,17 +65,17 @@ public class VisionSubsystem extends SubsystemBase {
             PhotonTrackedTarget target = result.getBestTarget();
 
             // m_field.getObject("cube").setPose(
-            //     new Pose2d(
-            //         PhotonUtils.estimateCameraToTargetTranslation(
-            //             PhotonUtils.calculateDistanceToTargetMeters(
-            //                 Constants.Constantsq.CAMERA_HEIGHT_METERS, 
-            //                 0, 
-            //                 0, 
-            //                 0), 
-            //             new Rotation2d(target.getYaw())
-            //         ).plus(getPose().toPose2d().getTranslation()),
-            //         new Rotation2d(0.0,0.0)
-            //     )
+            // new Pose2d(
+            // PhotonUtils.estimateCameraToTargetTranslation(
+            // PhotonUtils.calculateDistanceToTargetMeters(
+            // Constants.Constantsq.CAMERA_HEIGHT_METERS,
+            // 0,
+            // 0,
+            // 0),
+            // new Rotation2d(target.getYaw())
+            // ).plus(getPose().toPose2d().getTranslation()),
+            // new Rotation2d(0.0,0.0)
+            // )
             // );
 
             return target.getYaw();
@@ -68,67 +83,65 @@ public class VisionSubsystem extends SubsystemBase {
 
         return null;
     }
-    
 
     public Pose3d getPose() {
-        //SmartDashboard.putString("grr", "yayaya");
+        // SmartDashboard.putString("grr", "yayaya");
         camera.setPipelineIndex(1);
-
-        AprilTagFieldLayout aprilTagFieldLayout;
-        Transform3d cameraToRobot;
-        PhotonPoseEstimator photonPoseEstimator;
-        
+        PhotonPipelineResult tresult;
         // https://github.wpilib.org/allwpilib/docs/beta/java/edu/wpi/first/apriltag/AprilTagFieldLayout.html
-        try {
-            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
-        } catch (Exception e) {
-            aprilTagFieldLayout = null;
-            SmartDashboard.putString("field layout load error", e.toString());
-        }
-
-        cameraToRobot = new Transform3d(new Translation3d(Constants.Constantsq.CAMERA_TO_ROBOT_OFFSET_FORWARD, 0.0,
-            Constants.Constantsq.CAMERA_HEIGHT_METERS), new Rotation3d(0.0, 0.0, 0.0));
-        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, camera,
-            cameraToRobot);
 
         EstimatedRobotPose estimatedPose;
         Pose3d robotPose;
 
-        result = camera.getLatestResult();
+        tresult = camera.getLatestResult();
 
-        if (result.hasTargets()) {
+        if (tresult.hasTargets()) {
             SmartDashboard.putBoolean("targets?", true);
             // hasTargets.set(true);
 
             // PhotonTrackedTarget target = vision.getBestTarget();
 
-            photonPoseEstimator.setPrimaryStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
-            //SmartDashboard.putString("grr2", "yayaya");
+            // SmartDashboard.putString("grr2", "yayaya");
+
+            // SmartDashboard.putString("grr3", "yayaya");
+            // camera.getLatestResult();
+
+            var thingy = photonPoseEstimator.update(tresult);
+            try {
+                estimatedPose = thingy.get();
+                robotPose = estimatedPose.estimatedPose;
+            } catch (Exception e) {
+                estimatedPose = null;
+                robotPose = null;
+                return null;
+            }
+
+            // estimatedPose = photonPoseEstimator.update(result).get();
+            // robotPose = estimatedPose.estimatedPose;
 
             try {
-                //SmartDashboard.putString("grr3", "yayaya");
-
-                estimatedPose = photonPoseEstimator.update().get();
-                robotPose = estimatedPose.estimatedPose;
 
                 // time.set(estimatedPose.timestampSeconds);
                 List<PhotonTrackedTarget> targetsUsed = estimatedPose.targetsUsed;
+
                 // numTargets.set(targetsUsed.size());
 
-                SmartDashboard.putString("robotPose", robotPose.toString());
-                
                 m_field.setRobotPose(robotPose.toPose2d());
-                //return (new PoseWrapper(targetsUsed.size(), robotPose, estimatedPose.timestampSeconds));
+                // return (new PoseWrapper(targetsUsed.size(), robotPose,
+                // estimatedPose.timestampSeconds));
+
+                SmartDashboard.putString("robotPose", robotPose.toString());
+
                 return robotPose;
 
             } catch (Exception e) {
                 SmartDashboard.putString("robotPose", "none");
-                return null;
+                m_field.setRobotPose(new Pose2d());
             }
-
         } else {
             SmartDashboard.putBoolean("targets?", false);
             SmartDashboard.putString("robotPose", "none");
+            m_field.setRobotPose(new Pose2d());
         }
 
         return null;

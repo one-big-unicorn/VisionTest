@@ -20,8 +20,8 @@ public final class Constants {
   public static class Constantsq {
     public static final int kDriverControllerPort = 0;
     public static final double CAMERA_HEIGHT_METERS = 0.0;
-    public static final double CAMERA_TO_ROBOT_OFFSET_FORWARD = 0.1;
-    public static final String CAMERA_NAME = "OV5647";
+    public static final double CAMERA_TO_ROBOT_OFFSET_FORWARD = 0.0;
+    public static final String CAMERA_NAME = "USB_2.0_1080P_Camera";
     public static final String ROBORIO_IP = "[10.6.95.12]";
   }
 }
