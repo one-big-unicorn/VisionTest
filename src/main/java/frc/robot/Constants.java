@@ -17,10 +17,11 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static class Constantsq {
+  public static class Vision {
     public static final int kDriverControllerPort = 0;
     public static final double CAMERA_HEIGHT_METERS = 0.0;
     public static final double CAMERA_TO_ROBOT_OFFSET_FORWARD = 0.0;
+    public static final double CAMERA_TO_ROBOT_OFFSET_SIDEWAYS = 0.0;
     public static final String CAMERA_NAME = "USB_2.0_1080P_Camera";
     public static final String ROBORIO_IP = "[10.6.95.12]";
   }

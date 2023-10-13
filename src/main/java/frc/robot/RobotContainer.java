@@ -4,28 +4,19 @@
 
 package frc.robot;
 
-import frc.robot.commands.PoseCommand;
+import frc.robot.commands.VisionCommand;
 import frc.robot.subsystems.VisionSubsystem;
-
-// import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class RobotContainer {
 
-  // private final NetworkTableInstance inst;
   private final VisionSubsystem m_VisionSubsystem;
-  private final PoseCommand m_PoseCommand;
+  private final VisionCommand m_PoseCommand;
 
   public RobotContainer() {
 
-    // inst = NetworkTableInstance.getDefault();
-    // inst.stopServer();
-    // inst.setServerTeam(695);
-
-    // inst.startServer();
-
     m_VisionSubsystem = new VisionSubsystem();
-    m_PoseCommand = new PoseCommand(m_VisionSubsystem);
+    m_PoseCommand = new VisionCommand(m_VisionSubsystem);
     m_VisionSubsystem.setDefaultCommand(m_PoseCommand);
 
   }
