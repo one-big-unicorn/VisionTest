@@ -4,17 +4,16 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import frc.robot.subsystems.VisionSubsystem;
 
-public class PoseCommand extends CommandBase {
+public class VisionCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
 
   private final VisionSubsystem m_VisionSubsystem;
 
-  public PoseCommand(VisionSubsystem subsystem) {
+  public VisionCommand(VisionSubsystem subsystem) {
     m_VisionSubsystem = subsystem;
 
     addRequirements(m_VisionSubsystem);
@@ -25,8 +24,7 @@ public class PoseCommand extends CommandBase {
 
   @Override
   public void execute() {
-    //SmartDashboard.putString("output", m_VisionSubsystem.findCube().toString());
-    m_VisionSubsystem.getPose();
+    m_VisionSubsystem.getRobotToCube();
   }
 
   @Override
