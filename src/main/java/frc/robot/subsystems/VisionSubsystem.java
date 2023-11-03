@@ -1,25 +1,26 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonUtils;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -34,7 +35,7 @@ public class VisionSubsystem extends SubsystemBase {
         camera = new PhotonCamera(Constants.Vision.CAMERA_NAME);
         camera.setLED(VisionLEDMode.kOff);
         SmartDashboard.putData("Field", m_field);
-        cameraToRobot = new Transform3d(new Translation3d(Constants.Vision.CAMERA_TO_ROBOT_OFFSET_FORWARD, Constants.Vision.CAMERA_TO_ROBOT_OFFSET_SIDEWAYS,
+        cameraToRobot = new Transform3d(new Translation3d(Constants.Vision.ROBOT_TO_CAMERA_OFFSET_FORWARD, Constants.Vision.ROBOT_TO_CAMERA_OFFSET_SIDEWAYS,
                 Constants.Vision.CAMERA_HEIGHT_METERS), new Rotation3d(0.0, 0.0, 0.0));
         try {
             aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2023ChargedUp.m_resourceFile);
@@ -57,7 +58,7 @@ public class VisionSubsystem extends SubsystemBase {
             return null;
         }
 
-        Pose2d robotToCube = getRobotToCube();
+        Translation3d robotToCube = getRobotToCube();
 
         if (robotToCube == null) {
             m_field.getObject("cube").setPose(new Pose2d());
@@ -65,39 +66,47 @@ public class VisionSubsystem extends SubsystemBase {
             return null;
         }
 
-        Pose2d cubePose = new Pose2d(robotToCube.getTranslation().plus(robotPose.getTranslation()), robotPose.getRotation());
+        Pose2d cubePose = new Pose2d(robotToCube.toTranslation2d().plus(robotPose.getTranslation()), robotPose.getRotation());
         
         m_field.getObject("cube").setPose(cubePose);
         SmartDashboard.getString("cubePose", cubePose.toString());
         return cubePose;
     }
 
-    public Pose2d getRobotToCube() {
+    public Translation3d getRobotToCube() {        
+        camera.setPipelineIndex(1);
 
-        camera.setPipelineIndex(0);
+        //Pose2d robotPose = new Pose2d();
         result = camera.getLatestResult();
+        SmartDashboard.putBoolean("Targets?", result.hasTargets());
 
         if (result.hasTargets()) {
+            
             PhotonTrackedTarget target = result.getBestTarget();
-            double yaw = target.getYaw();
+            
+            Transform3d cameraToTargetTransform = target.getBestCameraToTarget();
+            // SmartDashboard.putNumber("Camera To Target Distance", Math.sqrt(Math.pow(cameraToTargetTransform.getX(), 2) + Math.pow(cameraToTargetTransform.getY(), 2) + Math.pow(cameraToTargetTransform.getZ(), 2)));
 
-            Pose2d cubePose = new Pose2d(
-                PhotonUtils.estimateCameraToTargetTranslation(
-                    PhotonUtils.calculateDistanceToTargetMeters(
-                        Constants.Vision.CAMERA_HEIGHT_METERS, 0, 0, target.getPitch()),
-                    Rotation2d.fromDegrees(yaw * -1)
-                ),
-                new Rotation2d(yaw)
-            );
+            Translation3d cameraToTarget = cameraToTargetTransform.getTranslation();
 
-            return cubePose;
+            // SmartDashboard.putString("Camera to Cube", cameraToTarget.toString());
+            
+            Translation3d robotToCube = cameraToTarget.plus(Constants.Vision.cameraToRobotOffset);
+            // SmartDashboard.putString("Robot to Cube", robotToCube.toString());
+            
+
+            return robotToCube;
+
         }
+        // SmartDashboard.putString("Camera to Cube", "none");
+        // SmartDashboard.putString("Robot to Cube", "none");
+        // SmartDashboard.putNumber("Camera To Target Distance", -1);
 
         return null;
     }
 
     public Pose3d getRobotPose() {
-        camera.setPipelineIndex(1);
+        camera.setPipelineIndex(0);
         PhotonPipelineResult tresult;
 
         EstimatedRobotPose estimatedPose;

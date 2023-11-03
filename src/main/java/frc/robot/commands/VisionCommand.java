@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import frc.robot.subsystems.VisionSubsystem;
@@ -24,7 +26,9 @@ public class VisionCommand extends CommandBase {
 
   @Override
   public void execute() {
-    m_VisionSubsystem.getRobotToCube();
+    Pose2d fakePose = new Pose2d(0, 0, new Rotation2d(10));
+
+    m_VisionSubsystem.getFieldtoCube(fakePose);
   }
 
   @Override

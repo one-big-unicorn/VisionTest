@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation3d;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -18,11 +20,15 @@ package frc.robot;
  */
 public final class Constants {
   public static class Vision {
-    public static final int kDriverControllerPort = 0;
-    public static final double CAMERA_HEIGHT_METERS = 0.0;
-    public static final double CAMERA_TO_ROBOT_OFFSET_FORWARD = 0.0;
-    public static final double CAMERA_TO_ROBOT_OFFSET_SIDEWAYS = 0.0;
+    // Offsets are from ROBOT to CAMERA, so if offset of 0.2, 0.2, 0.2, that means camera is to the upwards top left of robot
+    public static final double CAMERA_HEIGHT_METERS = 0.2;
+    public static final double ROBOT_TO_CAMERA_OFFSET_FORWARD = 0.2;
+    public static final double ROBOT_TO_CAMERA_OFFSET_SIDEWAYS = 0.2;
+
     public static final String CAMERA_NAME = "USB_2.0_1080P_Camera";
-    public static final String ROBORIO_IP = "[10.6.95.12]";
+    public static final double INTAKE_OFFSET = 0.3;
+    public static final Translation3d cameraToRobotOffset = new Translation3d(Constants.Vision.ROBOT_TO_CAMERA_OFFSET_FORWARD,
+            Constants.Vision.ROBOT_TO_CAMERA_OFFSET_SIDEWAYS,
+            Constants.Vision.CAMERA_HEIGHT_METERS);
   }
 }

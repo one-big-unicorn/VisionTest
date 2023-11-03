@@ -11,13 +11,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RobotContainer {
 
   private final VisionSubsystem m_VisionSubsystem;
-  private final VisionCommand m_PoseCommand;
+  private final VisionCommand m_VisionCommand;
 
   public RobotContainer() {
 
     m_VisionSubsystem = new VisionSubsystem();
-    m_PoseCommand = new VisionCommand(m_VisionSubsystem);
-    m_VisionSubsystem.setDefaultCommand(m_PoseCommand);
+    m_VisionCommand = new VisionCommand(m_VisionSubsystem);
+    m_VisionSubsystem.setDefaultCommand(m_VisionCommand);
 
   }
 
